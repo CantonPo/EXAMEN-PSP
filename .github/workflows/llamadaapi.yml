@@ -3,7 +3,7 @@ name: Llamada a la API de IP
 on:
   schedule:
     - cron: '*/10 * * * *'  # Se ejecuta cada 10 minutos
-  workflow_dispatch:  
+  workflow_dispatch:  # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
 
 jobs:
   call_api:
@@ -24,6 +24,7 @@ jobs:
             --header "x-rapidapi-host: ip-ip-Fan-Xiang-Cha-Xun.p.rapidapi.com" \
             --header "x-rapidapi-key: ${{ secrets.RAPIDAPI_KEY }}")
 
+          # Imprimimos la respuesta de la API para ver si fue exitosa
           echo "Respuesta de la API: $RESPONSE"
 
           # Si la respuesta no está vacía, guardamos la respuesta en un archivo
@@ -36,9 +37,21 @@ jobs:
             exit 1
           fi
 
+      - name: Verificar si el archivo fue creado
+        run: |
+          # Verificamos si el archivo fue creado correctamente
+          TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
+          if [ -f "api_response_${TIMESTAMP}.json" ]; then
+            echo "El archivo fue creado correctamente."
+          else
+            echo "El archivo no se ha creado."
+            exit 1
+          fi
+
       - name: Subir archivo al repositorio
         run: |
           # Verificamos si el archivo existe antes de intentar agregarlo
+          TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
           if [ -f "api_response_${TIMESTAMP}.json" ]; then
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
@@ -49,4 +62,5 @@ jobs:
             echo "No se encontró el archivo para subir"
             exit 1
           fi
+
 
