@@ -2,7 +2,7 @@ name: Monitorización Web
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Se ejecuta cada 1 minutos
+    - cron: '*/10 * * * *'  # Se ejecuta cada 10 minutos
   workflow_dispatch:
 
 jobs:
@@ -14,15 +14,26 @@ jobs:
 
       - name: Comprobar estado de la web
         run: |
-          URL="https://ejemplo.com"
+          URL="https://mercadona.es"  # O la URL que estés monitoreando
           STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" $URL)
           TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
           echo "$TIMESTAMP - Código: $STATUS_CODE" >> monitor.log
 
-      - name: Guardar resultado
+      - name: Configurar Git
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+
+      - name: Guardar resultado y hacer pull antes del push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usa el token que configuraste
+        run: |
           git add monitor.log
           git commit -m "Actualización de monitor.log"
-          git push origin main
+          
+          # Hacer pull para obtener los últimos cambios antes del push
+          git pull --strategy=recursive --strategy-option=theirs origin main
+
+          # Hacer push con el token de GitHub
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
+
