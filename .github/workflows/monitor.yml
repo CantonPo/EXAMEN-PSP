@@ -26,7 +26,7 @@ jobs:
 
       - name: Guardar resultado y hacer pull antes del push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usa el token que configuraste
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
         run: |
           git add monitor.log
           git commit -m "Actualización de monitor.log"
