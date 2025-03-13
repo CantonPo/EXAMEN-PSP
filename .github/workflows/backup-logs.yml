@@ -28,9 +28,13 @@ jobs:
           # Descargar el archivo de logs desde el VPS
           sshpass -p "${{ secrets.SSH_PASSWORD }}" scp root@172.233.111.192:/tmp/logs.tar.gz ./logs-backup/logs.tar.gz
 
-          # Subir el archivo de backup al repositorio
+      - name: Subir backup al repositorio
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git add logs-backup/logs.tar.gz
           git commit -m "Backup de logs"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
+
 
 
