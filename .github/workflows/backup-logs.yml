@@ -23,7 +23,7 @@ jobs:
           mkdir -p logs-backup
 
           # Usar sshpass para conectarse con la contraseña almacenada en los secretos
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@172.233.111.192 "tar -czf /tmp/logs.tar.gz /var/logs/*"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@172.233.111.192 "tar -czf /tmp/logs.tar.gz /var/log/*"
 
           # Descargar el archivo de logs desde el VPS
           sshpass -p "${{ secrets.SSH_PASSWORD }}" scp root@172.233.111.192:/tmp/logs.tar.gz ./logs-backup/logs.tar.gz
