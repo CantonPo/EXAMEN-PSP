@@ -2,7 +2,7 @@ name: Monitorización Web
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Se ejecuta cada 10 minutos
+    - cron: '*/1 * * * *'  # Se ejecuta cada 1 minutos
   workflow_dispatch:
 
 jobs:
