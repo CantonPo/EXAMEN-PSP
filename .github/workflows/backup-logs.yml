@@ -1,4 +1,4 @@
-name: Backup de Logs del VPS
+name: Backup de logs del VPS
 
 on:
   schedule:
@@ -12,21 +12,25 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v3
 
-      - name: Conectar al VPS y realizar backup de logs
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Clave SSH privada almacenada en los secretos
+      - name: Instalar dependencias necesarias
         run: |
-          # Crear directorio para los logs si no existe
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Conectar al VPS y hacer backup de logs
+        run: |
+          # Crear un directorio para los logs si no existe
           mkdir -p logs-backup
 
-          # Conectar al VPS mediante SSH y copiar los logs
-          ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no root@172.233.111.192 "tar -czf /tmp/logs.tar.gz /var/log/*"
+          # Usar sshpass para conectarse con la contraseña almacenada en los secretos
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@172.233.111.192 "tar -czf /tmp/logs.tar.gz /var/logs/*"
 
-          # Descargar el archivo tar desde el VPS a tu repositorio
-          scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no root@172.233.111.192:/tmp/logs.tar.gz ./logs-backup/logs.tar.gz
+          # Descargar el archivo de logs desde el VPS
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp root@172.233.111.192:/tmp/logs.tar.gz ./logs-backup/logs.tar.gz
 
           # Subir el archivo de backup al repositorio
           git add logs-backup/logs.tar.gz
           git commit -m "Backup de logs"
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
+
 
