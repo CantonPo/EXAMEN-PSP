@@ -1,0 +1,31 @@
+name: Llamada a la API de IP
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Se ejecuta cada 10 minutos
+  workflow_dispatch:  # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
+
+jobs:
+  call_api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: Llamar a la API de RapidAPI
+        run: |
+          IP_ADDRESS="8.8.8.8"  
+          
+          # Realizamos la llamada a la API utilizando curl
+          curl --request GET \
+          --url "https://ip-ip-fan-xiang-cha-xun.p.rapidapi.com/${IP_ADDRESS}/json" \
+          --header "x-rapidapi-host: ip-ip-Fan-Xiang-Cha-Xun.p.rapidapi.com" \
+          --header "x-rapidapi-key: ${{ secrets.RAPIDAPI_KEY }}" \
+          --output "api_response_$(date "+%Y-%m-%d_%H-%M-%S").json"
+          
+          # Subir el archivo generado al repositorio
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add "api_response_$(date "+%Y-%m-%d_%H-%M-%S").json"
+          git commit -m "Nuevo archivo de respuesta de la API"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
